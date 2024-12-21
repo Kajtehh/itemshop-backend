@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductVariant {
+public class Variant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,8 +24,8 @@ public class ProductVariant {
 
     @ElementCollection
     @CollectionTable(
-            name = "product_variant_commands",
-            joinColumns = @JoinColumn(name = "product_variant_id")
+            name = "variant_commands",
+            joinColumns = @JoinColumn(name = "variant_id")
     )
     @Column(name = "command")
     private List<String> commands;

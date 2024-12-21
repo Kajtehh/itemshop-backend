@@ -31,8 +31,7 @@ public class ProductService implements CommonService<Product, UUID> {
         return this.productRepository.findById(id);
     }
 
-    @Override
-    public List<Product> getAll() {
-        return this.productRepository.findAll();
+    public List<Product> getAll(UUID serverId) {
+        return this.productRepository.findAllByServerId(serverId);
     }
 }

@@ -7,6 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VariantRepository extends JpaRepository<Variant, UUID> {
-    List<Variant> findProductVariants(UUID productId);
-
+    List<Variant> findVariantsByProductId(UUID productId);
 }

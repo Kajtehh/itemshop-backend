@@ -13,6 +13,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Table(name = "itemshop_order")
 @NoArgsConstructor
 public class Order {
 

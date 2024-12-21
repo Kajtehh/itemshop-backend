@@ -31,4 +31,10 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Variant> variants = new ArrayList<>();
+
+    public Product(String name, double basePrice, Server server) {
+        this.name = name;
+        this.basePrice = basePrice;
+        this.server = server;
+    }
 }

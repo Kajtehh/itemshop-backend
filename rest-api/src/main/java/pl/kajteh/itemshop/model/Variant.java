@@ -34,4 +34,11 @@ public class Variant {
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
+
+    public Variant(String name, double price, List<String> commands, Product product) {
+        this.name = name;
+        this.price = price;
+        this.commands = commands;
+        this.product = product;
+    }
 }

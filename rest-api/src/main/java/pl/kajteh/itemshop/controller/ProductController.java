@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@RestController
 @RequestMapping("/api/{version}/products")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/{serverId}")
+    @GetMapping("/server/{serverId}")
     public List<Product> getProducts(@PathVariable UUID serverId) {
         return this.productService.getAll(serverId);
     }
@@ -33,8 +34,8 @@ public class ProductController {
 
     @RequireApiKey
     @PostMapping
-    public void saveProduct(Product product) {
-        this.productService.save(product);
+    public Product saveProduct(@RequestBody Product product) {
+        return this.productService.save(product);
     }
 
     @RequireApiKey

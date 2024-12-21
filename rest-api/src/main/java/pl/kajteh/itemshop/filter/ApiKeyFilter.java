@@ -4,12 +4,14 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
 import java.io.IOException;
 import java.util.Optional;
 
+@Component
 public class ApiKeyFilter implements Filter {
 
     @Value("${api.key}")

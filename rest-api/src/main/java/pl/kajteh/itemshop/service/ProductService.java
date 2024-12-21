@@ -17,8 +17,8 @@ public class ProductService implements CommonService<Product, UUID> {
     private final ProductRepository productRepository;
 
     @Override
-    public void save(Product product) {
-        this.productRepository.save(product);
+    public Product save(Product product) {
+        return this.productRepository.save(product);
     }
 
     @Override

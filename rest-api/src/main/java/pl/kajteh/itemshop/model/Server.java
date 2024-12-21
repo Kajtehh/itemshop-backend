@@ -22,4 +22,8 @@ public class Server {
 
     @OneToMany(mappedBy = "server")
     private List<Product> products;
+
+    public Server(String name) {
+        this.name = name;
+    }
 }

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import pl.kajteh.itemshop.filter.ApiVersionFilter;
 
 @Configuration
-public class ShopFilterConfig {
+public class ItemShopFilterConfig {
 
     @Bean
     public FilterRegistrationBean<ApiVersionFilter> apiVersionFilterRegistration(ApiVersionFilter filter) {

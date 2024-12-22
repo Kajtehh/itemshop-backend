@@ -14,8 +14,14 @@ public class ItemShopConfig {
     @Value("${shop.secretKey}")
     private String shopSecretKey;
 
+    @Value("${shop.test}")
+    private boolean shopTest;
+
     @Bean
     public CashBillShop shop() {
-        return new CashBillShop(this.shopId, this.shopSecretKey);
+        final CashBillShop shop = new CashBillShop(this.shopId, this.shopSecretKey);
+
+        shop.setTest(this.shopTest);
+        return shop;
     }
 }

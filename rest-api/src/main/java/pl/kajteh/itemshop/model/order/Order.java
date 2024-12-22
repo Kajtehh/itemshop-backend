@@ -26,7 +26,7 @@ public class Order {
     private String cashBillId;
     private String cashBillLink;
 
-    private int quantity;
+    //private int quantity;
     private String nickname;
     private String email;
     private String paymentChannel;

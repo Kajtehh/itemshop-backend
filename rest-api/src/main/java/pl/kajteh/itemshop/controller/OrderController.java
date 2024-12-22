@@ -80,19 +80,19 @@ public class OrderController {
         orderModel.setProductId(product.getId());
         orderModel.setVariantId(variant.getId());
 
-        final int quantity = orderRequest.quantity() == 0 ? 1 : orderRequest.quantity();
+        //final int quantity = orderRequest.quantity() == 0 ? 1 : orderRequest.quantity();
         final String paymentChannel = orderRequest.paymentChannel() == null ? "" : orderRequest.paymentChannel();
 
         orderModel.setNickname(nickname);
         orderModel.setEmail(email);
-        orderModel.setQuantity(quantity);
+        //orderModel.setQuantity(quantity);
         orderModel.setPaymentChannel(paymentChannel);
 
-        final double finalPrice = variant.getPrice() * quantity;
+        final double finalPrice = variant.getPrice(); //* quantity;
 
         orderModel.setTotalPrice(finalPrice);
 
-        final String paymentTitle = String.format("Product %s order, variant %s", product.getName(), variant.getName());
+        final String paymentTitle = String.format("Order for product '%s', variant '%s'", product.getName(), variant.getName());
 
         final CashBillPayment payment = new CashBillPayment(
                 paymentTitle,

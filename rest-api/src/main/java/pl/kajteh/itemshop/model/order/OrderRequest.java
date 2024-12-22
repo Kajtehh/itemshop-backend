@@ -8,6 +8,6 @@ public record OrderRequest(
         String paymentChannel,
         UUID serverId,
         UUID productId,
-        UUID variantId,
-        int quantity
+        UUID variantId
+        //int quantity
 ) {}

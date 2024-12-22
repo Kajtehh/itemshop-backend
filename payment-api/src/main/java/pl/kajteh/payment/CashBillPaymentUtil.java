@@ -53,6 +53,12 @@ public class CashBillPaymentUtil {
         return DigestUtils.sha1Hex(sb.toString());
     }
 
+    public String generatePaymentNotificationSignature(String cmd, String args, String secretKey) {
+        final String data = cmd + args + secretKey;
+
+        return DigestUtils.md5Hex(data.getBytes()).toLowerCase();
+    }
+
     public static String getPaymentUrl(@NonNull CashBillShop shop) {
         return "https://pay.cashbill.pl/:ws/rest/payment/:shopId"
                 .replace(":shopId", shop.shopId)

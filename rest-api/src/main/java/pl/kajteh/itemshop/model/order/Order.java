@@ -21,8 +21,10 @@ import java.util.UUID;
 public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
+    private String cashBillId;
+    private String cashBillLink;
 
     private int quantity;
     private String nickname;
@@ -30,21 +32,19 @@ public class Order {
     private String paymentChannel;
     private OrderStatus status;
 
+    private double totalPrice;
+
+    private UUID serverId;
+    private UUID productId;
+    private UUID variantId;
+
     @UpdateTimestamp
     private Instant updatedAt;
 
     @CreationTimestamp
     private Instant createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "server_id")
-    private Server server;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @ManyToOne
-    @JoinColumn(name = "variant_id")
-    private Variant variant;
+    public Order(UUID id) {
+        this.id = id;
+    }
 }

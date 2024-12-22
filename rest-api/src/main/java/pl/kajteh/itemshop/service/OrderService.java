@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.kajteh.itemshop.model.order.Order;
 import pl.kajteh.itemshop.repository.OrderRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,5 +29,9 @@ public class OrderService implements CommonService<Order, UUID> {
     @Override
     public Optional<Order> get(UUID id) {
         return this.orderRepository.findById(id);
+    }
+
+    public List<Order> getAll() {
+        return this.orderRepository.findAll();
     }
 }

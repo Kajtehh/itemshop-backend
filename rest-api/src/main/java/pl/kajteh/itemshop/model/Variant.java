@@ -30,7 +30,7 @@ public class Variant {
     @Column(name = "command")
     private List<String> commands;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;

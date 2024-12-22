@@ -1,4 +1,4 @@
-package pl.kajteh.itemshop.filter;
+package pl.kajteh.itemshop.security;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

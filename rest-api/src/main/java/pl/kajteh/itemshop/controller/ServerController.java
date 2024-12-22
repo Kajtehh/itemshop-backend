@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.kajteh.itemshop.filter.RequireApiKey;
+import pl.kajteh.itemshop.security.RequireApiKey;
 import pl.kajteh.itemshop.model.Server;
 import pl.kajteh.itemshop.service.ServerService;
 
@@ -33,8 +33,8 @@ public class ServerController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @RequireApiKey
     @PostMapping
+    @RequireApiKey
     public Server saveServer(@RequestBody Server server) {
         return this.serverService.save(server);
     }

@@ -1,4 +1,4 @@
-package pl.kajteh.itemshop.filter;
+package pl.kajteh.itemshop.security;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

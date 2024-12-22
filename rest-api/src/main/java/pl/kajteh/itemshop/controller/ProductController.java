@@ -2,11 +2,14 @@ package pl.kajteh.itemshop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.kajteh.itemshop.filter.RequireApiKey;
+import pl.kajteh.itemshop.model.Server;
+import pl.kajteh.itemshop.security.RequireApiKey;
 import pl.kajteh.itemshop.model.Product;
 import pl.kajteh.itemshop.service.ProductService;
+import pl.kajteh.itemshop.service.ServerService;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
+    private final ServerService serverService;
 
     @GetMapping("/server/{serverId}")
     public List<Product> getProducts(@PathVariable UUID serverId) {

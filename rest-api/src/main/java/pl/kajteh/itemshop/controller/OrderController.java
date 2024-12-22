@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import pl.kajteh.itemshop.security.RequireApiKey;
 import pl.kajteh.itemshop.model.Product;
 import pl.kajteh.itemshop.model.Server;
 import pl.kajteh.itemshop.model.Variant;
@@ -26,6 +24,10 @@ import pl.kajteh.payment.data.CashBillAmountData;
 import pl.kajteh.payment.data.CashBillGeneratedPayment;
 import pl.kajteh.payment.data.CashBillPersonalData;
 
+import java.util.List;
+import java.util.UUID;
+
+@RequireApiKey
 @RestController
 @RequestMapping("/api/{version}/orders")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -39,6 +41,24 @@ public class OrderController {
 
     @PostMapping("/start")
     public ResponseEntity<?> startOrder(@RequestBody OrderRequest orderRequest) {
+        final String nickname = orderRequest.nickname();
+        final String email = orderRequest.email();
+
+        if(nickname == null || email == null
+                || orderRequest.serverId() == null
+                || orderRequest.productId() == null
+                || orderRequest.variantId() == null) {
+            return ResponseEntity.badRequest().body("Missing parameters");
+        }
+
+        if (!NicknameValidator.isValidNickname(nickname)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid nickname format");
+        }
+
+        if (!EmailValidator.isValidEmail(email)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format");
+        }
+
         final Server server = this.serverService.get(orderRequest.serverId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Server was not found"));
 
@@ -52,50 +72,62 @@ public class OrderController {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Variant was not found"));
 
-        final String nickname = orderRequest.nickname();
-        final String email = orderRequest.email();
+        final UUID orderId = UUID.randomUUID();
 
-        if (!NicknameValidator.isValidNickname(nickname)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid nickname format.");
-        }
+        final Order orderModel = new Order(orderId);
 
-        if (!EmailValidator.isValidEmail(email)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format.");
-        }
+        orderModel.setServerId(server.getId());
+        orderModel.setProductId(product.getId());
+        orderModel.setVariantId(variant.getId());
 
-        final Order orderModel = new Order();
+        final int quantity = orderRequest.quantity() == 0 ? 1 : orderRequest.quantity();
+        final String paymentChannel = orderRequest.paymentChannel() == null ? "" : orderRequest.paymentChannel();
 
         orderModel.setNickname(nickname);
         orderModel.setEmail(email);
-        orderModel.setQuantity(orderModel.getQuantity() != 0 ? orderModel.getQuantity() : 1);
-        orderModel.setStatus(OrderStatus.CREATED);
+        orderModel.setQuantity(quantity);
+        orderModel.setPaymentChannel(paymentChannel);
 
-        final Order order = this.orderService.save(orderModel);
+        final double finalPrice = variant.getPrice() * quantity;
+
+        orderModel.setTotalPrice(finalPrice);
 
         final String paymentTitle = String.format("Product %s order, variant %s", product.getName(), variant.getName());
 
         final CashBillPayment payment = new CashBillPayment(
                 paymentTitle,
-                new CashBillAmountData(variant.getPrice(), "PLN"));
+                new CashBillAmountData(finalPrice, "PLN"));
 
-        payment.setAdditionalData(order.getId().toString());
+        payment.setAdditionalData(orderId.toString());
         payment.setDescription(PAYMENT_DESCRIPTION);
 
         payment.setPersonalData(CashBillPersonalData.builder()
                 .email(email)
                 .build());
 
-        payment.setPaymentChannel(orderRequest.paymentChannel());
+        payment.setPaymentChannel(paymentChannel);
 
-        payment.setReturnUrl("https://kajteh.pl/order/" + order.getId());
+        payment.setReturnUrl("https://kajteh.pl/order/" + orderId);
         payment.setNegativeReturnUrl("https://kajteh.pl/something-went-wrong");
 
         try {
             final CashBillGeneratedPayment generatedPayment = this.shop.createPayment(payment);
 
-            return ResponseEntity.ok(generatedPayment);
+            orderModel.setCashBillId(generatedPayment.id());
+            orderModel.setCashBillLink(generatedPayment.redirectUrl());
+
+            orderModel.setStatus(OrderStatus.CREATED);
+
+            final Order order = this.orderService.save(orderModel);
+
+            return ResponseEntity.ok(order);
         } catch (CashBillPaymentException e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping
+    public List<Order> getOrders() {
+        return this.orderService.getAll();
     }
 }

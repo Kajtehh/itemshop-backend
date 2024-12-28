@@ -21,6 +21,7 @@ public class Server {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    private String image;
     private String name;
 
     @OneToMany(mappedBy = "server", cascade = CascadeType.ALL)

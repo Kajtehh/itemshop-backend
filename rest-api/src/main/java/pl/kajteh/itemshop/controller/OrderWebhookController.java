@@ -42,7 +42,7 @@ public class OrderWebhookController {
         try {
             final CashBillPaymentDetails payment = this.shop.getPayment(args);
 
-            final Optional<Order> optionalOrder = this.orderService.get(UUID.fromString(payment.getAdditionalData()));
+            final Optional<Order> optionalOrder = this.orderService.getOrder(UUID.fromString(payment.getAdditionalData()));
 
             if(optionalOrder.isEmpty()) {
                 return new ResponseEntity<>("Order not found", HttpStatus.NOT_FOUND);
@@ -56,7 +56,7 @@ public class OrderWebhookController {
                 default -> OrderStatus.PROCESSING;
             });
 
-            this.orderService.save(order);
+            this.orderService.saveOrder(order);
 
             return ResponseEntity.ok("OK");
         } catch (CashBillPaymentException e) {
@@ -67,7 +67,7 @@ public class OrderWebhookController {
     @RequireApiKey
     @PostMapping("/receive/{orderId}")
     public ResponseEntity<?> receiveOrder(@PathVariable UUID orderId) {
-        final Optional<Order> optionalOrder = this.orderService.get(orderId);
+        final Optional<Order> optionalOrder = this.orderService.getOrder(orderId);
 
         if(optionalOrder.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -79,7 +79,7 @@ public class OrderWebhookController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Order isn't payed");
         }
 
-        final Variant variant = this.variantService.get(order.getVariantId()).orElse(null);
+        final Variant variant = this.variantService.getVariant(order.getVariantId()).orElse(null);
 
         if(variant == null) {
             return ResponseEntity.internalServerError().body("Variant was not found");

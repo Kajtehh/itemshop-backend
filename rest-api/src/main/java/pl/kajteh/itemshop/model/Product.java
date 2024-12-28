@@ -24,6 +24,7 @@ public class Product {
 
     private String name;
     private String description;
+    private String image;
     private double basePrice;
 
     @ManyToOne

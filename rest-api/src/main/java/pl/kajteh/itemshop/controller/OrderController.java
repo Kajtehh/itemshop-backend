@@ -2,6 +2,7 @@ package pl.kajteh.itemshop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,9 @@ public class OrderController {
 
     private static final String PAYMENT_DESCRIPTION = "Created with ❤️ by Kajteh";
 
+    @Value("${shop.url}")
+    private String shopUrl;
+
     @PostMapping("/start")
     public ResponseEntity<?> startOrder(@RequestBody OrderRequest orderRequest) {
         final String nickname = orderRequest.nickname();
@@ -59,7 +63,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format");
         }
 
-        final Server server = this.serverService.get(orderRequest.serverId())
+        final Server server = this.serverService.getServer(orderRequest.serverId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Server was not found"));
 
         final Product product = server.getProducts().stream()
@@ -90,7 +94,7 @@ public class OrderController {
 
         final double finalPrice = variant.getPrice(); //* quantity;
 
-        orderModel.setTotalPrice(finalPrice);
+        orderModel.setTotalPrice(finalPrice); // Add payment channel provision
 
         final String paymentTitle = String.format("Order for product '%s', variant '%s'", product.getName(), variant.getName());
 
@@ -107,8 +111,8 @@ public class OrderController {
 
         payment.setPaymentChannel(paymentChannel);
 
-        payment.setReturnUrl("https://kajteh.pl/order/" + orderId);
-        payment.setNegativeReturnUrl("https://kajteh.pl/something-went-wrong");
+        payment.setReturnUrl(this.shopUrl + "/order/" + orderId);
+        payment.setNegativeReturnUrl(this.shopUrl + "/something-went-wrong");
 
         try {
             final CashBillGeneratedPayment generatedPayment = this.shop.createPayment(payment);
@@ -118,7 +122,7 @@ public class OrderController {
 
             orderModel.setStatus(OrderStatus.CREATED);
 
-            final Order order = this.orderService.save(orderModel);
+            final Order order = this.orderService.saveOrder(orderModel);
 
             return ResponseEntity.ok(order);
         } catch (CashBillPaymentException e) {
@@ -128,6 +132,6 @@ public class OrderController {
 
     @GetMapping
     public List<Order> getOrders() {
-        return this.orderService.getAll();
+        return this.orderService.getOrders();
     }
 }

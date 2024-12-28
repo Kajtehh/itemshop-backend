@@ -2,14 +2,11 @@ package pl.kajteh.itemshop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.kajteh.itemshop.model.Server;
 import pl.kajteh.itemshop.security.RequireApiKey;
 import pl.kajteh.itemshop.model.Product;
 import pl.kajteh.itemshop.service.ProductService;
-import pl.kajteh.itemshop.service.ServerService;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,16 +18,15 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
-    private final ServerService serverService;
 
     @GetMapping("/server/{serverId}")
     public List<Product> getProducts(@PathVariable UUID serverId) {
-        return this.productService.getAll(serverId);
+        return this.productService.getProductsByServer(serverId);
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<Product> getProduct(@PathVariable UUID productId) {
-        final Optional<Product> optionalProduct = this.productService.get(productId);
+        final Optional<Product> optionalProduct = this.productService.getProduct(productId);
 
         return optionalProduct.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -39,12 +35,12 @@ public class ProductController {
     @RequireApiKey
     @PostMapping
     public Product saveProduct(@RequestBody Product product) {
-        return this.productService.save(product);
+        return this.productService.saveProduct(product);
     }
 
     @RequireApiKey
     @DeleteMapping("/{productId}")
     public void deleteProduct(@PathVariable UUID productId) {
-        this.productService.delete(productId);
+        this.productService.deleteProduct(productId);
     }
 }

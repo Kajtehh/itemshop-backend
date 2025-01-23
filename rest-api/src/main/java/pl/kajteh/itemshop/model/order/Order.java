@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import pl.kajteh.itemshop.model.Product;
-import pl.kajteh.itemshop.model.Server;
-import pl.kajteh.itemshop.model.Variant;
 
 import java.time.Instant;
 import java.util.UUID;

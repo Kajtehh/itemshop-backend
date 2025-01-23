@@ -11,10 +11,9 @@ import pl.kajteh.itemshop.model.order.OrderStatus;
 import pl.kajteh.itemshop.security.RequireApiKey;
 import pl.kajteh.itemshop.service.OrderService;
 import pl.kajteh.itemshop.service.VariantService;
+import pl.kajteh.payment.CashBillPaymentDetails;
 import pl.kajteh.payment.CashBillPaymentException;
-import pl.kajteh.payment.CashBillPaymentUtil;
-import pl.kajteh.payment.CashBillShop;
-import pl.kajteh.payment.data.CashBillPaymentDetails;
+import pl.kajteh.payment.CashBillPaymentProcessor;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class OrderWebhookController {
 
-    private final CashBillShop shop;
+    private final CashBillPaymentProcessor paymentProcessor;
     private final OrderService orderService;
     private final VariantService variantService;
 
@@ -33,18 +32,12 @@ public class OrderWebhookController {
             @RequestParam String cmd,
             @RequestParam String args,
             @RequestParam String sign) {
-        final String correctSignature = CashBillPaymentUtil.generatePaymentNotificationSignature(cmd, args, this.shop.getSecretKey());
-
-        if(!sign.equals(correctSignature) || !cmd.equals("transactionStatusChanged")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature or command");
-        }
-
         try {
-            final CashBillPaymentDetails payment = this.shop.getPayment(args);
+            final CashBillPaymentDetails payment = this.paymentProcessor.processPaymentStatusChange(cmd, sign, args);
 
             final Optional<Order> optionalOrder = this.orderService.getOrder(UUID.fromString(payment.getAdditionalData()));
 
-            if(optionalOrder.isEmpty()) {
+            if (optionalOrder.isEmpty()) {
                 return new ResponseEntity<>("Order not found", HttpStatus.NOT_FOUND);
             }
 
@@ -60,7 +53,7 @@ public class OrderWebhookController {
 
             return ResponseEntity.ok("OK");
         } catch (CashBillPaymentException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

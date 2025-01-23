@@ -3,7 +3,7 @@ package pl.kajteh.itemshop.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import pl.kajteh.payment.CashBillShop;
+import pl.kajteh.payment.CashBillPaymentProcessor;
 
 @Configuration
 public class ItemShopConfig {
@@ -18,10 +18,7 @@ public class ItemShopConfig {
     private boolean shopTest;
 
     @Bean
-    public CashBillShop shop() {
-        final CashBillShop shop = new CashBillShop(this.shopId, this.shopSecretKey);
-
-        shop.setTest(this.shopTest);
-        return shop;
+    public CashBillPaymentProcessor paymentProcessor() {
+        return new CashBillPaymentProcessor(this.shopId, this.shopSecretKey, this.shopTest);
     }
 }

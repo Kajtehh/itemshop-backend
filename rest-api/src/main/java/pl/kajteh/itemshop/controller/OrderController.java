@@ -20,7 +20,7 @@ import pl.kajteh.itemshop.validator.EmailValidator;
 import pl.kajteh.itemshop.validator.NicknameValidator;
 import pl.kajteh.payment.CashBillPayment;
 import pl.kajteh.payment.CashBillPaymentException;
-import pl.kajteh.payment.CashBillShop;
+import pl.kajteh.payment.CashBillPaymentProcessor;
 import pl.kajteh.payment.data.CashBillAmountData;
 import pl.kajteh.payment.data.CashBillGeneratedPayment;
 import pl.kajteh.payment.data.CashBillPersonalData;
@@ -34,7 +34,7 @@ import java.util.UUID;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class OrderController {
 
-    private final CashBillShop shop;
+    private final CashBillPaymentProcessor paymentProcessor;
     private final OrderService orderService;
     private final ServerService serverService;
 
@@ -105,9 +105,8 @@ public class OrderController {
         payment.setAdditionalData(orderId.toString());
         payment.setDescription(PAYMENT_DESCRIPTION);
 
-        payment.setPersonalData(CashBillPersonalData.builder()
-                .email(email)
-                .build());
+        payment.setPersonalData(new CashBillPersonalData()
+                .setEmail(email));
 
         payment.setPaymentChannel(paymentChannel);
 
@@ -115,10 +114,10 @@ public class OrderController {
         payment.setNegativeReturnUrl(this.shopUrl + "/something-went-wrong");
 
         try {
-            final CashBillGeneratedPayment generatedPayment = this.shop.createPayment(payment);
+            final CashBillGeneratedPayment generatedPayment = this.paymentProcessor.createPayment(payment);
 
-            orderModel.setCashBillId(generatedPayment.id());
-            orderModel.setCashBillLink(generatedPayment.redirectUrl());
+            orderModel.setCashBillId(generatedPayment.getId());
+            orderModel.setCashBillLink(generatedPayment.getRedirectUrl());
 
             orderModel.setStatus(OrderStatus.CREATED);
 
